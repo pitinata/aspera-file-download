@@ -34,6 +34,52 @@ chmod +x aspera-cli-x.x.x.xxx.xxxxxxx-linux-xx-release.sh
 export PATH=~/.aspera/cli/bin:$PATH
 ```
 
+### `screen` Command
+When transferring large file with limited connection speed using Virtual Machine. It is inconvenient to monitoring the process at all time.
+screen command will enable user to create a separate session that still working in backgroud even after user has been disconnected.
+
+This command is not installed by default, user can manually install this command using
+```
+sudo apt install screen
+```
+
+Then user can create separate session simply using 
+```
+screen
+```
+After the session has been created, user may execute any command normally.
+When user need to detach the session, Press `ctrl+a` then press `d` to detach session.
+The detached session will continue working in the background.
+
+User can restore detached session by using
+```
+screen -r
+```
+This will return user to the detached session command window.
+
+In case there is more than one detached session running in the background, use this command to get a list of the detached session.
+```
+screen -ls
+```
+The list of name and id of each detached session will appear. Then using
+```
+screen -r (session number)
+```
+to restore specific session.
+
+For example, when using `screen -ls`, the returned output are:
+```
+    10835.pts-0.linuxize-desktop   (Detached)
+    10366.pts-0.linuxize-desktop   (Detached)
+```
+
+User may use the following command to restore 10835.pts-0.linuxize-desktop session.
+```
+screen -r 10835
+```
+
+For more information about screen, please see [this article](https://linuxize.com/post/how-to-use-linux-screen/) or access [full user manual](https://www.gnu.org/software/screen/manual/screen.html)
+
 ### Transferring Files From Source Server
 In this scenario, NSTDA server only allowed connection on port 80 and 33001. There are large number of files that required to be downloaded.
 Thus, ascp4 script are selected for file transfer between NSTDA server and user's server.
@@ -65,8 +111,6 @@ Directly transfer files to the Cloud Storage may incur unexpected charges, as sc
 After the files has been downloaded and checksum verification has been performed on the downloaded file. These files will be transferred to the Google Cloud Storage.
 by using gsutil, user will be able to access Google Cloud Storage by using command prompt.
 
-For more information about gsutil, please see [gsutil tool](https://cloud.google.com/storage/docs/gsutil)
-
 User will need to login first, to enable the access to the specific Google Cloud Storage.
 By using command
 
@@ -75,19 +119,22 @@ gcloud auth login
 ```
 and following the instruction on the command prompt.
 
-
-
-
-Using the following command
+After user has been successfully logged in, use `gsutil rsync` to co 
 ```
-gsutil rsync -m -r (source path) (destination path)
+gsutil -m rsync -r (source path) (destination path)
 ```
 Where
 
 - `gsutil` : Calling gsutil command
-- `rsync`
-- `-m`
-- `-r`
+- `-m` : Cause rsync to run in parallel. This will improve performance in case user performing operations on a large number of files over a reasonably fast network connection.
+- `rsync` : rsync is a tool to make content in `(destination path)` as same as `(source path)` by copying file from the source when it is not found or outdated on the destination and delete file from the destination when it is not found on the source.
+- `-r` : Sync data recursively. All data and subdirectory in the `(source path)` will be synced. 
 - `(source path)` : Specific path on the user's server that user store the downloaded files.
 - `(destination path)` : Specific path on the Google Cloud Storage that user wish to transfer files.
 
+For more information about gsutil, please see
+[gsutil](https://cloud.google.com/storage/docs/gsutil)
+[gsutil - rsync](https://cloud.google.com/storage/docs/gsutil/commands/rsync)
+
+## Contact
+This guide has been written by Pitinat A. (pitinat@gmail.com) for internal use of Mahidol University.
